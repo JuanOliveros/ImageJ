@@ -458,7 +458,7 @@ public class SyncWindows extends PlugInFrame implements
 		if (vwins == null) return;
 		// prevent popups popping up in all windows on right mouseclick
 		if (Toolbar.getToolId()!= Toolbar.MAGNIFIER &&
-			(e.isPopupTrigger() || (e.getModifiers() & MouseEvent.META_MASK)!=0)) return;
+				(e.isPopupTrigger() || (e.getModifiers() & MouseEvent.META_MASK)!=0)) return;
 		ImagePlus imp;
 		ImageWindow iw;
 		ImageCanvas ic;

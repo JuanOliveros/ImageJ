@@ -189,7 +189,6 @@ public class Functions implements MacroConstants, Measurements {
 			case MAKE_ELLIPSE: makeEllipse(); break;
 			case GET_DISPLAYED_AREA: getDisplayedArea(); break;
 			case TO_SCALED: toScaled(); break;
-			case TO_UNSCALED: toUnscaled(); break;
 		}
 	}
 
@@ -7639,47 +7638,7 @@ public class Functions implements MacroConstants, Measurements {
 		}
 	}
 
-	void toUnscaled() {   //calibrated coordinates to pixel coordinates
-		ImagePlus imp = getImage();
-		Plot plot = (Plot)(getImage().getProperty(Plot.PROPERTY_KEY)); //null if not a plot window
-		int height = imp.getHeight();
-		Calibration cal = imp.getCalibration();
-		interp.getLeftParen();
-		if (isArrayArg()) {
-			Variable[] x = getArray();
-			interp.getComma();
-			Variable[] y = getArray();
-			interp.getRightParen();
-			for (int i=0; i<x.length; i++)
-				x[i].setValue(plot == null ? cal.getRawX(x[i].getValue()) : plot.scaleXtoPxl(x[i].getValue()));
-			for (int i=0; i<y.length; i++)
-				y[i].setValue(plot == null ? cal.getRawY(y[i].getValue(),height) : plot.scaleYtoPxl(y[i].getValue()));
-		} else {
-			Variable xv = getVariable();
-			Variable yv = null;
-			Variable zv = null;
-			boolean twoArgs = interp.nextToken()==',';
-			if (twoArgs) {
-				interp.getComma();
-				yv = getVariable();
-			}
-			boolean threeArgs = interp.nextToken()==',';
-			if (threeArgs) {
-				interp.getComma();
-				zv = getVariable();
-			}
-			interp.getRightParen();
-			double x = xv.getValue();
-			if (twoArgs) {
-				double y = yv.getValue();
-				xv.setValue(plot == null ? cal.getRawX(x) : plot.scaleXtoPxl(x));
-				yv.setValue(plot == null ? cal.getRawY(y,height) : plot.scaleYtoPxl(y));
-				if (threeArgs)
-					zv.setValue(cal.getRawZ(zv.getValue()));
-			} else  //oneArg; convert horizontal length (not the x coordinate, no offset)
-				xv.setValue(x/cal.pixelWidth);
-		}
-	}
+
 
 	private Variable doRoi() {
 		interp.getToken();

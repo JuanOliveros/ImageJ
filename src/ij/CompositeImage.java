@@ -250,7 +250,7 @@ public class CompositeImage extends ImagePlus {
 				img = ip.createImage();
 			return;
 		}
-	
+
 		if (cip==null||cip[0].getWidth()!=width||cip[0].getHeight()!=height||getBitDepth()!=bitDepth) {
 			setup(nChannels, getImageStack());
 			rgbPixels = null;
@@ -262,13 +262,13 @@ public class CompositeImage extends ImagePlus {
 			}
 			bitDepth = getBitDepth();
 		}
-		
+
 		if (newChannel) {
 			getProcessor().setMinAndMax(cip[currentChannel].getMin(), cip[currentChannel].getMax());
 			if (!IJ.isMacro()) ContrastAdjuster.update();
 		}
 		//IJ.log(nChannels+" "+ch+" "+currentChannel+"  "+newChannel);
-				
+
 		if (getSlice()!=currentSlice || getFrame()!=currentFrame) {
 			currentSlice = getSlice();
 			currentFrame = getFrame();
@@ -288,14 +288,7 @@ public class CompositeImage extends ImagePlus {
 		cip[currentChannel].setMinAndMax(ip.getMin(),ip.getMax());
 		int projectionMode = ImageProcessor.SUM_PROJECTION;
 		String prop = getProp("CompositeProjection");
-		if (prop!=null) {
-			if (prop.contains("Max")||prop.contains("max"))
-				projectionMode = ImageProcessor.MAX_PROJECTION;
-			else if (prop.contains("Min")||prop.contains("min"))
-				projectionMode = ImageProcessor.MIN_PROJECTION;
-			else if (prop.contains("Invert")||prop.contains("invert"))
-				projectionMode = ImageProcessor.INVERT_PROJECTION;
-		}
+		projectionMode = getProjectionMode(projectionMode, prop);
 		long t0 = IJ.debugMode?System.nanoTime():0L;
 		if (singleChannel && nChannels<=3) {
 			switch (currentChannel) {
@@ -334,8 +327,20 @@ public class CompositeImage extends ImagePlus {
 		if (img==null && awtImage!=null)
 			img = awtImage;
 		singleChannel = false;
-	}		
-    
+	}
+
+	private static int getProjectionMode(int projectionMode, String prop) {
+		if (prop !=null) {
+			if (prop.contains("Max")|| prop.contains("max"))
+				projectionMode = ImageProcessor.MAX_PROJECTION;
+			else if (prop.contains("Min")|| prop.contains("min"))
+				projectionMode = ImageProcessor.MIN_PROJECTION;
+			else if (prop.contains("Invert")|| prop.contains("invert"))
+				projectionMode = ImageProcessor.INVERT_PROJECTION;
+		}
+		return projectionMode;
+	}
+
 	// Creates multi-channel composite view with inverted LUTs
 	// https://forum.image.sc/t/multi-channel-composite-view-with-inverted-luts-in-imagej-fiji/61163
 	// Peter Haub, 12'2021
