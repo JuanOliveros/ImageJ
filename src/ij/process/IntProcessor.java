@@ -23,6 +23,10 @@ public class IntProcessor extends ColorProcessor {
 	/** Create an 8-bit AWT image by scaling pixels in the range min-max to 0-255. */
 	@Override
 	public Image createImage() {
+		return getImage();
+	}
+
+	private Image getImage() {
 		if (!minMaxSet)
 			findMinAndMax();
 		boolean firstTime = pixels8==null;
@@ -55,7 +59,7 @@ public class IntProcessor extends ColorProcessor {
 		}
 		return createBufferedImage();
 	}
-	
+
 	// creates 8-bit image by linearly scaling from float to 8-bits
 	private byte[] create8BitImage(boolean thresholding) {
 		int size = width*height;

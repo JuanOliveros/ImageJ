@@ -871,49 +871,37 @@ public class FloatProcessor extends ImageProcessor {
 			return lowerAverage + yFraction * (upperAverage-lowerAverage);
 	}
 
-	/*
-	private final double getInterpolatedPixel(double x, double y, float[] pixels) {
-		int xbase = (int)x;
-		int ybase = (int)y;
-		double xFraction = x - xbase;
-		double yFraction = y - ybase;
-		int offset = ybase * width + xbase;
-		double lowerLeft = pixels[offset];
-		double lowerRight = pixels[offset + 1];
-		double upperRight = pixels[offset + width + 1];
-		double upperLeft = pixels[offset + width];
-		double upperAverage = upperLeft + xFraction * (upperRight - upperLeft);
-		double lowerAverage = lowerLeft + xFraction * (lowerRight - lowerLeft);
-		return lowerAverage + yFraction * (upperAverage - lowerAverage);
-	}
-	*/
 
 	/** Creates a new FloatProcessor containing a scaled copy of this image or selection. */
 	public ImageProcessor resize(int dstWidth, int dstHeight) {
-		if (roiWidth==dstWidth && roiHeight==dstHeight)
+		return getImageProcessor(dstWidth, dstHeight);
+	}
+
+	private ImageProcessor getImageProcessor(int dstWidth, int dstHeight) {
+		if (roiWidth== dstWidth && roiHeight== dstHeight)
 			return crop();
 		if ((width==1||height==1) && interpolationMethod!=NONE)
 			return resizeLinearly(dstWidth, dstHeight);
 		double srcCenterX = roiX + roiWidth/2.0;
 		double srcCenterY = roiY + roiHeight/2.0;
-		double dstCenterX = dstWidth/2.0;
-		double dstCenterY = dstHeight/2.0;
-		double xScale = (double)dstWidth/roiWidth;
-		double yScale = (double)dstHeight/roiHeight;
+		double dstCenterX = dstWidth /2.0;
+		double dstCenterY = dstHeight /2.0;
+		double xScale = (double) dstWidth /roiWidth;
+		double yScale = (double) dstHeight /roiHeight;
 		if (interpolationMethod!=NONE) {
-			if (dstWidth!=width) dstCenterX+=xScale/4.0;
-			if (dstHeight!=height) dstCenterY+=yScale/4.0;
+			if (dstWidth !=width) dstCenterX+=xScale/4.0;
+			if (dstHeight !=height) dstCenterY+=yScale/4.0;
 		}
-		int inc = getProgressIncrement(dstWidth,dstHeight);
+		int inc = getProgressIncrement(dstWidth, dstHeight);
 		ImageProcessor ip2 = createProcessor(dstWidth, dstHeight);
 		float[] pixels2 = (float[])ip2.getPixels();
 		double xs, ys;
 		if (interpolationMethod==BICUBIC) {
-			for (int y=0; y<=dstHeight-1; y++) {
-				if (inc>0&&y%inc==0) showProgress((double)y/dstHeight);
+			for (int y = 0; y<= dstHeight -1; y++) {
+				if (inc>0&&y%inc==0) showProgress((double)y/ dstHeight);
 				ys = (y-dstCenterY)/yScale + srcCenterY;
-				int index = y*dstWidth;
-				for (int x=0; x<=dstWidth-1; x++) {
+				int index = y* dstWidth;
+				for (int x = 0; x<= dstWidth -1; x++) {
 					xs = (x-dstCenterX)/xScale + srcCenterX;
 					pixels2[index++] = (float)getBicubicInterpolatedPixel(xs, ys, this);
 				}
@@ -922,16 +910,16 @@ public class FloatProcessor extends ImageProcessor {
 			double xlimit = width-1.0, xlimit2 = width-1.001;
 			double ylimit = height-1.0, ylimit2 = height-1.001;
 			int index1, index2;
-			for (int y=0; y<=dstHeight-1; y++) {
-				if (inc>0&&y%inc==0) showProgress((double)y/dstHeight);
+			for (int y = 0; y<= dstHeight -1; y++) {
+				if (inc>0&&y%inc==0) showProgress((double)y/ dstHeight);
 				ys = (y-dstCenterY)/yScale + srcCenterY;
 				if (interpolationMethod==BILINEAR) {
 					if (ys<0.0) ys = 0.0;
 					if (ys>=ylimit) ys = ylimit2;
 				}
 				index1 = width*(int)ys;
-				index2 = y*dstWidth;
-				for (int x=0; x<=dstWidth-1; x++) {
+				index2 = y* dstWidth;
+				for (int x = 0; x<= dstWidth -1; x++) {
 					xs = (x-dstCenterX)/xScale + srcCenterX;
 					if (interpolationMethod==BILINEAR) {
 						if (xs<0.0) xs = 0.0;
@@ -945,7 +933,7 @@ public class FloatProcessor extends ImageProcessor {
 		if (inc>0) showProgress(1.0);
 		return ip2;
 	}
-	
+
 	FloatProcessor downsize(int dstWidth, int dstHeight, String msg) {
 		FloatProcessor ip2 = this;
 		if (msg!=null)

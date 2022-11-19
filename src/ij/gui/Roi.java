@@ -924,6 +924,9 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		oldHeight = height;
 	}
 
+	public class Switch{
+
+	}
 	protected void moveHandle(int sx, int sy) {
 		double asp;
 		if (clipboard!=null) return;

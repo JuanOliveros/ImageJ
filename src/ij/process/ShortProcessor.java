@@ -88,6 +88,10 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Create an 8-bit AWT image by scaling pixels in the range min-max to 0-255. */
 	public Image createImage() {
+		return getImage();
+	}
+
+	private Image getImage() {
 		if (!minMaxSet)
 			findMinAndMax();
 		boolean firstTime = pixels8==null;
@@ -120,7 +124,7 @@ public class ShortProcessor extends ImageProcessor {
 		}
 		return createBufferedImage();
 	}
-	
+
 	// create 8-bit image by linearly scaling from 16-bits to 8-bits
 	private byte[] create8BitImage(boolean thresholding) {
 		int size = width*height;
@@ -848,7 +852,7 @@ public class ShortProcessor extends ImageProcessor {
 			for (int y=ymin; y<=ymax; y++) {
 				ys = (y-yCenter)/yScale + yCenter;
 				ysi = (int)ys;
-				if (ys<0.0) ys = 0.0;			
+				if (ys<0.0) ys = 0.0;
 				if (ys>=ylimit) ys = ylimit2;
 				index1 = y*width + xmin;
 				index2 = width*(int)ys;
@@ -888,30 +892,34 @@ public class ShortProcessor extends ImageProcessor {
 
 	/** Creates a new ShortProcessor containing a scaled copy of this image or selection. */
 	public ImageProcessor resize(int dstWidth, int dstHeight) {
-		if (roiWidth==dstWidth && roiHeight==dstHeight)
+		return getImageProcessor(dstWidth, dstHeight);
+	}
+
+	private ImageProcessor getImageProcessor(int dstWidth, int dstHeight) {
+		if (roiWidth== dstWidth && roiHeight== dstHeight)
 			return crop();
 		if ((width==1||height==1) && interpolationMethod!=NONE)
 			return resizeLinearly(dstWidth, dstHeight);
 		double srcCenterX = roiX + roiWidth/2.0;
 		double srcCenterY = roiY + roiHeight/2.0;
-		double dstCenterX = dstWidth/2.0;
-		double dstCenterY = dstHeight/2.0;
-		double xScale = (double)dstWidth/roiWidth;
-		double yScale = (double)dstHeight/roiHeight;
+		double dstCenterX = dstWidth /2.0;
+		double dstCenterY = dstHeight /2.0;
+		double xScale = (double) dstWidth /roiWidth;
+		double yScale = (double) dstHeight /roiHeight;
 		if (interpolationMethod!=NONE) {
-			if (dstWidth!=width) dstCenterX+=xScale/4.0;
-			if (dstHeight!=height) dstCenterY+=yScale/4.0;
+			if (dstWidth !=width) dstCenterX+=xScale/4.0;
+			if (dstHeight !=height) dstCenterY+=yScale/4.0;
 		}
-		int inc = getProgressIncrement(dstWidth,dstHeight);
+		int inc = getProgressIncrement(dstWidth, dstHeight);
 		ImageProcessor ip2 = createProcessor(dstWidth, dstHeight);
 		short[] pixels2 = (short[])ip2.getPixels();
 		double xs, ys;
 		if (interpolationMethod==BICUBIC) {
-			for (int y=0; y<=dstHeight-1; y++) {
-				if (inc>0&&y%inc==0) showProgress((double)y/dstHeight);
+			for (int y = 0; y<= dstHeight -1; y++) {
+				if (inc>0&&y%inc==0) showProgress((double)y/ dstHeight);
 				ys = (y-dstCenterY)/yScale + srcCenterY;
-				int index2 = y*dstWidth;
-				for (int x=0; x<=dstWidth-1; x++) {
+				int index2 = y* dstWidth;
+				for (int x = 0; x<= dstWidth -1; x++) {
 					xs = (x-dstCenterX)/xScale + srcCenterX;
 					int value = (int)(getBicubicInterpolatedPixel(xs, ys, this)+0.5);
 					if (value<0) value=0; if (value>65535) value=65535;
@@ -922,16 +930,16 @@ public class ShortProcessor extends ImageProcessor {
 			double xlimit = width-1.0, xlimit2 = width-1.001;
 			double ylimit = height-1.0, ylimit2 = height-1.001;
 			int index1, index2;
-			for (int y=0; y<=dstHeight-1; y++) {
-				if (inc>0&&y%inc==0) showProgress((double)y/dstHeight);
+			for (int y = 0; y<= dstHeight -1; y++) {
+				if (inc>0&&y%inc==0) showProgress((double)y/ dstHeight);
 				ys = (y-dstCenterY)/yScale + srcCenterY;
 				if (interpolationMethod==BILINEAR) {
 					if (ys<0.0) ys = 0.0;
 					if (ys>=ylimit) ys = ylimit2;
 				}
 				index1 = width*(int)ys;
-				index2 = y*dstWidth;
-				for (int x=0; x<=dstWidth-1; x++) {
+				index2 = y* dstWidth;
+				for (int x = 0; x<= dstWidth -1; x++) {
 					xs = (x-dstCenterX)/xScale + srcCenterX;
 					if (interpolationMethod==BILINEAR) {
 						if (xs<0.0) xs = 0.0;

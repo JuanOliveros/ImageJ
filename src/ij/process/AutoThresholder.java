@@ -453,7 +453,7 @@ public class AutoThresholder {
 		// 06.15.2007
 		// Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines
 		int threshold=-1;
-		int ih, it;
+		int ih = 0, it;
 		int first_bin;
 		int last_bin;
 		double tot_ent;  /* total entropy */
@@ -465,18 +465,7 @@ public class AutoThresholder {
 		double [] P2 = new double[256]; 
 
 		double total =0;
-		for (ih = 0; ih < 256; ih++ ) 
-			total+=data[ih];
-
-		for (ih = 0; ih < 256; ih++ )
-			norm_histo[ih] = data[ih]/total;
-
-		P1[0]=norm_histo[0];
-		P2[0]=1.0-P1[0];
-		for (ih = 1; ih < 256; ih++ ){
-			P1[ih]= P1[ih-1] + norm_histo[ih];
-			P2[ih]= 1.0 - P1[ih];
-		}
+		ifTotal(ih, total, data, norm_histo, P1, P2);
 
 		/* Determine the first non-zero bin */
 		first_bin=0;
@@ -527,6 +516,21 @@ public class AutoThresholder {
 			}
 		}
 		return threshold;
+	}
+
+	private static void ifTotal(int ih, double total, int[] data, double[] norm_histo, double[] P1, double[] P2) {
+		for (ih = 0; ih < 256; ih++ )
+			total += data[ih];
+
+		for (ih = 0; ih < 256; ih++ )
+			norm_histo[ih] = data[ih]/ total;
+
+		P1[0]= norm_histo[0];
+		P2[0]=1.0- P1[0];
+		for (ih = 1; ih < 256; ih++ ){
+			P1[ih]= P1[ih -1] + norm_histo[ih];
+			P2[ih]= 1.0 - P1[ih];
+		}
 	}
 
 	int Mean(int [] data ) {
@@ -812,7 +816,7 @@ public class AutoThresholder {
 		int threshold; 
 		int opt_threshold;
 
-		int ih, it;
+		int ih = 0, it;
 		int first_bin;
 		int last_bin;
 		int tmp_var;
@@ -830,18 +834,7 @@ public class AutoThresholder {
 		double [] P2 = new double[256]; 
 
 		double total =0;
-		for (ih = 0; ih < 256; ih++ ) 
-			total+=data[ih];
-
-		for (ih = 0; ih < 256; ih++ )
-			norm_histo[ih] = data[ih]/total;
-
-		P1[0]=norm_histo[0];
-		P2[0]=1.0-P1[0];
-		for (ih = 1; ih < 256; ih++ ){
-			P1[ih]= P1[ih-1] + norm_histo[ih];
-			P2[ih]= 1.0 - P1[ih];
-		}
+		ifTotal(ih, total, data, norm_histo, P1, P2);
 
 		/* Determine the first non-zero bin */
 		first_bin=0;
@@ -1007,7 +1000,7 @@ public class AutoThresholder {
 		//  Image Thresholding" Graphical Models and Image Processing, 56(5): 414-419
 		// Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines
 		int threshold;
-		int ih, it;
+		int ih = 0, it;
 		int first_bin;
 		int last_bin;
 		double term;
@@ -1020,18 +1013,7 @@ public class AutoThresholder {
 		double [] P2 = new double[256]; 
 
 		double total =0;
-		for (ih = 0; ih < 256; ih++ ) 
-			total+=data[ih];
-
-		for (ih = 0; ih < 256; ih++ )
-			norm_histo[ih] = data[ih]/total;
-
-		P1[0]=norm_histo[0];
-		P2[0]=1.0-P1[0];
-		for (ih = 1; ih < 256; ih++ ){
-			P1[ih]= P1[ih-1] + norm_histo[ih];
-			P2[ih]= 1.0 - P1[ih];
-		}
+		ifTotal(ih, total, data, norm_histo, P1, P2);
 
 		/* Determine the first non-zero bin */
 		first_bin=0;

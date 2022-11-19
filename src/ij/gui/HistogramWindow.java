@@ -115,6 +115,10 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 		Currently, the number of bins must be 256 and the histogram range range must be 
 		the same as the image range expect for 32 bit images. */
 	public void showHistogram(ImagePlus imp, int bins, double histMin, double histMax) {
+		limitToThreshold(imp, bins, histMin, histMax);
+	}
+
+	private void limitToThreshold(ImagePlus imp, int bins, double histMin, double histMax) {
 		boolean limitToThreshold = (Analyzer.getMeasurements()&LIMIT)!=0;
 		ImageProcessor ip = imp.getProcessor();
 		if (ip.getMinThreshold()!=ImageProcessor.NO_THRESHOLD
@@ -124,7 +128,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			rgbMode=INTENSITY1;
 		if (rgbMode==RED||rgbMode==GREEN||rgbMode==BLUE) {
 			int channel = rgbMode - 2;
-			ColorProcessor cp = (ColorProcessor)imp.getProcessor();
+			ColorProcessor cp = (ColorProcessor) imp.getProcessor();
 			ip = cp.getChannel(channel, null);
 			ImagePlus imp2 = new ImagePlus("", ip);
 			imp2.setRoi(imp.getRoi());
@@ -135,7 +139,7 @@ public class HistogramWindow extends ImageWindow implements Measurements, Action
 			stats = imp.getStatistics(AREA+MEAN+MODE+MIN_MAX+(limitToThreshold?LIMIT:0), bins, histMin, histMax);
 		showHistogram(imp, stats);
 	}
-	
+
 	private ImageStatistics RGBHistogram(ImagePlus imp, int bins, double histMin, double histMax) {
 		ImageProcessor ip = (ColorProcessor)imp.getProcessor();
 		ip = ip.crop();
