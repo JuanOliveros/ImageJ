@@ -42,12 +42,16 @@ public class CompositeImage extends ImagePlus {
 	}
 	
 	public CompositeImage(ImagePlus imp, int mode) {
-		if (mode<COMPOSITE || mode>GRAYSCALE)
+		ifSecond(imp, mode);
+	}
+
+	private void ifSecond(ImagePlus imp, int mode) {
+		if (mode <COMPOSITE || mode >GRAYSCALE)
 			mode = COLOR;
 		this.mode = mode;
 		int channels = imp.getNChannels();
 		bitDepth = getBitDepth();
-		if (IJ.debugMode) IJ.log("CompositeImage: "+imp+" "+mode+" "+channels);
+		if (IJ.debugMode) IJ.log("CompositeImage: "+ imp +" "+ mode +" "+channels);
 		ImageStack stack2;
 		boolean isRGB = imp.getBitDepth()==24;
 		if (isRGB) {
@@ -63,7 +67,7 @@ public class CompositeImage extends ImagePlus {
 			channels = stackSize;
 		if (channels<1 || (stackSize%channels)!=0)
 			throw new IllegalArgumentException("stacksize not multiple of channels");
-		if (mode==COMPOSITE && channels>MAX_CHANNELS)
+		if (mode ==COMPOSITE && channels>MAX_CHANNELS)
 			this.mode = COLOR;
 		compositeImage = true;
 		int z = imp.getNSlices();
@@ -76,15 +80,15 @@ public class CompositeImage extends ImagePlus {
 		setCalibration(imp.getCalibration());
 		FileInfo fi = imp.getOriginalFileInfo();
 		if (fi!=null) {
-			displayRanges = fi.displayRanges; 
+			displayRanges = fi.displayRanges;
 			channelLuts = fi.channelLuts;
 		}
 		setFileInfo(fi);
 		Object info = imp.getProperty("Info");
 		if (info!=null)
 			setProperty("Info", imp.getProperty("Info"));
-		setProperties(imp.getPropertiesAsArray());		
-		if (mode==COMPOSITE) {
+		setProperties(imp.getPropertiesAsArray());
+		if (mode ==COMPOSITE) {
 			for (int i=0; i<MAX_CHANNELS; i++)
 				active[i] = true;
 		} else
@@ -145,14 +149,18 @@ public class CompositeImage extends ImagePlus {
 	void setupLuts(int channels) {
 		if (ip==null)
 			return;
-		if (lut==null || lut.length<channels) {
-			if (displayRanges!=null && channels!=displayRanges.length/2)
+		ifFirst(channels);
+	}
+
+	private void ifFirst(int channels) {
+		if (lut==null || lut.length< channels) {
+			if (displayRanges!=null && channels !=displayRanges.length/2)
 				displayRanges = null;
 			if (displayRanges==null&&ip.getMin()==0.0&&ip.getMax()==0.0)
 				ip.resetMinAndMax();
 			lut = new LUT[channels];
-			LUT lut2 = channels>MAX_CHANNELS?createLutFromColor(Color.white):null;
-			for (int i=0; i<channels; ++i) {
+			LUT lut2 = channels >MAX_CHANNELS?createLutFromColor(Color.white):null;
+			for (int i = 0; i< channels; ++i) {
 				if (channelLuts!=null && i<channelLuts.length) {
 					lut[i] = createLutFromBytes(channelLuts[i]);
 					customLuts = true;
@@ -161,17 +169,17 @@ public class CompositeImage extends ImagePlus {
 				else
 					lut[i] = (LUT)lut2.clone();
 				if (displayRanges!=null) {
-					lut[i].min = displayRanges[i*2];
 					lut[i].max = displayRanges[i*2+1];
 				} else {
 					lut[i].min = ip.getMin();
 					lut[i].max = ip.getMax();
-				}
+				}		lut[i].min = displayRanges[i*2];
+
 			}
 			displayRanges = null;
 		}
 	}
-	
+
 	public void resetDisplayRanges() {
 		int channels = getNChannels();
 		if (lut==null)
