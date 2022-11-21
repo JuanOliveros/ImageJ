@@ -20,7 +20,7 @@ public class RoiDefaultsDialog implements PlugIn, DialogListener {
 		int strokeWidth = (int)Roi.getDefaultStrokeWidth();
 		String gname = getGroupName(group);
 		GenericDialog gd = new GenericDialog("ROI Defaults");
-		gd.addChoice("Color:", Colors.colors, cname);
+		gd.addChoice("Color:", Colors.getColorsArray(), cname);
 		gd.addNumericField("Stroke width:", strokeWidth, 0, 3, "");
 		gd.setInsets(18, 0, 5);
 		gd.addNumericField("Group:", group, 0, 3, "");

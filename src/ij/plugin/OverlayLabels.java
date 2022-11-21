@@ -55,7 +55,7 @@ public class OverlayLabels implements PlugIn, DialogListener {
 			bold = font.getStyle()==Font.BOLD;
 		}
 		gd = new GenericDialog("Labels");
-		gd.addChoice("Color:", Colors.colors, colorName);
+		gd.addChoice("Color:", Colors.getColorsArray(), colorName);
 		gd.addChoice("Font size:", fontSizes, ""+fontSize);
 		gd.addCheckbox("Show labels", showLabels);
 		gd.addCheckbox("Use names as labels", showNames);

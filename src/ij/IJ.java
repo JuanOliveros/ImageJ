@@ -482,7 +482,7 @@ public class IJ {
 			options = options.replace(hexColor, "");
 		}
 		if (optionalColor==null) {  // "red", "green", etc.
-			for (String c : Colors.colors) {
+			for (String c : Colors.getColorsArray()) {
 				if (options.contains(c)) {
 					optionalColor = Colors.getColor(c, ImageJ.backgroundColor);
 					options = options.replace(c, "");
