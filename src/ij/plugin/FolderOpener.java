@@ -543,9 +543,9 @@ public class FolderOpener implements PlugIn, TextListener {
 				stack.addImage(fi);
 		}
 	}
-	
-	boolean showDialog() {
+	private String settingOptions(){
 		String options = Macro.getOptions();
+		String countStr = "---";
 		if  (options!=null) {  //macro
 			String optionsOrig = options;
 			options = options.replace("open=", "dir=");
@@ -558,16 +558,21 @@ public class FolderOpener implements PlugIn, TextListener {
 				Macro.setOptions(options);
 			if (options.contains("convert_to_rgb"))
 				this.bitDepth = 24;
+
+			if (!directorySet && options==null)
+				directory = Prefs.get(DIR_KEY, IJ.getDir("downloads")+"stack/");
+			if (directory!=null && !IJ.isMacro()) {
+				File f = new File(directory);
+				String[] names = f.list();
+				names = trimFileList(names);
+				countStr = names!=null?""+names.length:"---";
+			}
 		}
-		String countStr = "---";
-		if (!directorySet && options==null)
-			directory = Prefs.get(DIR_KEY, IJ.getDir("downloads")+"stack/");
-		if (directory!=null && !IJ.isMacro()) {			
-			File f = new File(directory);
-			String[] names = f.list();
-			names = trimFileList(names);
-			countStr = names!=null?""+names.length:"---";
-		}
+		return countStr;
+	}
+	boolean showDialog() {
+		String countStr = settingOptions();
+
 		GenericDialog gd = new GenericDialog("Import Image Sequence");
 		gd.setInsets(5, 0, 0);
 		gd.addDirectoryField("Dir:", directory);		

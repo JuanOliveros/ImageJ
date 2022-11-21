@@ -1038,72 +1038,14 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 				height=1;
 				y=y2=yc;
 			}
-			switch (activeHandle) {
-				case 0:
-					x=x2-width;
-					y=y2-height;
-					break;
-				case 1:
-					x=xc-width/2;
-					y=y2-height;
-					break;
-				case 2:
-					y=y2-height;
-					break;
-				case 3:
-					y=yc-height/2;
-					break;
-				case 5:
-					x=xc-width/2;
-					break;
-				case 6:
-					x=x2-width;
-					break;
-				case 7:
-					y=yc-height/2;
-					x=x2-width;
-					break;
-			}
-			if (center) {
-				x=xc-width/2;
-				y=yc-height/2;
-			}
+			adjustXandY(x2, y2, xc, yc);
 		}
 
 		if (aspect && !constrain) {
 			if (activeHandle==1 || activeHandle==5) width=(int)Math.rint((double)height*asp);
 			else height=(int)Math.rint((double)width/asp);
 
-			switch (activeHandle){
-				case 0:
-					x=x2-width;
-					y=y2-height;
-					break;
-				case 1:
-					x=xc-width/2;
-					y=y2-height;
-					break;
-				case 2:
-					y=y2-height;
-					break;
-				case 3:
-					y=yc-height/2;
-					break;
-				case 5:
-					x=xc-width/2;
-					break;
-				case 6:
-					x=x2-width;
-					break;
-				case 7:
-					y=yc-height/2;
-					x=x2-width;
-					break;
-			}
-			if (center) {
-				x=xc-width/2;
-				y=yc-height/2;
-			}
+			adjustXandY(x2, y2, xc, yc);
 
 			// Attempt to preserve aspect ratio when roi very small:
 			if (width<8) {
@@ -1122,6 +1064,39 @@ public class Roi extends Object implements Cloneable, java.io.Serializable, Iter
 		oldWidth=width; oldHeight=height;
 		bounds = null;
 		subPixel = false;
+	}
+
+	private void adjustXandY(int x2, int y2, int xc, int yc) {
+		switch (activeHandle) {
+			case 0:
+				x= x2 -width;
+				y= y2 -height;
+				break;
+			case 1:
+				x= xc -width/2;
+				y= y2 -height;
+				break;
+			case 2:
+				y= y2 -height;
+				break;
+			case 3:
+				y= yc -height/2;
+				break;
+			case 5:
+				x= xc -width/2;
+				break;
+			case 6:
+				x= x2 -width;
+				break;
+			case 7:
+				y= yc -height/2;
+				x= x2 -width;
+				break;
+		}
+		if (center) {
+			x= xc -width/2;
+			y= yc -height/2;
+		}
 	}
 
 	void move(int sx, int sy) {
