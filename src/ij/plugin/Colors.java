@@ -1,18 +1,16 @@
 package ij.plugin;
 import ij.*;
 import ij.gui.*;
-import ij.process.*;
-import ij.io.*;
-import ij.plugin.filter.*;
-import ij.util.Tools;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /** This plugin implements most of the Edit/Options/Colors command. */
 public class Colors implements PlugIn, ItemListener {
-	public static final String[] colors = {"red","green","blue","magenta","cyan","yellow","orange","black","white","gray","lightgray","darkgray","pink"};
-	private static final String[] colors2 = {"Red","Green","Blue","Magenta","Cyan","Yellow","Orange","Black","White","Gray","lightGray","darkGray","Pink"};
+
+	private final static String[] colorsArray = {"red","green","blue","magenta","cyan","yellow","orange","black","white","gray","lightgray","darkgray","pink"};
 	private Choice fchoice, bchoice, schoice;
 	private Color fc2, bc2, sc2;
 
@@ -21,7 +19,7 @@ public class Colors implements PlugIn, ItemListener {
 	}
 
 	/** The Edit>Options>Colors dialog */
-	void showDialog() {
+	private void showDialog() {
 		Color fc =Toolbar.getForegroundColor();
 		String fname = getColorName(fc, "black");
 		Color bc =Toolbar.getBackgroundColor();
@@ -29,9 +27,9 @@ public class Colors implements PlugIn, ItemListener {
 		Color sc =Roi.getColor();
 		String sname = getColorName(sc, "yellow");
 		GenericDialog gd = new GenericDialog("Colors");
-		gd.addChoice("Foreground:", colors, fname);
-		gd.addChoice("Background:", colors, bname);
-		gd.addChoice("Selection:", colors, sname);
+		gd.addChoice("Foreground:", colorsArray, fname);
+		gd.addChoice("Background:", colorsArray, bname);
+		gd.addChoice("Selection:", colorsArray, sname);
 		Vector choices = gd.getChoices();
 		if (choices!=null) {
 			fchoice = (Choice)choices.elementAt(0);
@@ -84,47 +82,43 @@ public class Colors implements PlugIn, ItemListener {
 	/** For named colors, returns the name, or 'defaultName' if not a named color.
 	 *  'color' must not be null. */
 	private static String getColorName(Color c, String defaultName, boolean useCapitalizedName) {
-		String[] colorNames = useCapitalizedName ? colors2 : colors;
-		if (c.equals(Color.red))            return colorNames[0];
-		else if (c.equals(Color.green))     return colorNames[1];
-		else if (c.equals(Color.blue))      return colorNames[2];
-		else if (c.equals(Color.magenta))   return colorNames[3];
-		else if (c.equals(Color.cyan))      return colorNames[4];
-		else if (c.equals(Color.yellow))    return colorNames[5];
-		else if (c.equals(Color.orange))    return colorNames[6];
-		else if (c.equals(Color.black))     return colorNames[7];
-		else if (c.equals(Color.white))     return colorNames[8];
-		else if (c.equals(Color.gray))      return colorNames[9];
-		else if (c.equals(Color.lightGray)) return colorNames[10];
-		else if (c.equals(Color.darkGray))  return colorNames[11];
-		else if (c.equals(Color.pink))      return colorNames[12];
-		return defaultName;
+		String colorName;
+		if (c.equals(Color.red))            colorName = colorsArray[0];
+		else if (c.equals(Color.green))     colorName = colorsArray[1];
+		else if (c.equals(Color.blue))      colorName = colorsArray[2];
+		else if (c.equals(Color.magenta))   colorName = colorsArray[3];
+		else if (c.equals(Color.cyan))      colorName = colorsArray[4];
+		else if (c.equals(Color.yellow))    colorName = colorsArray[5];
+		else if (c.equals(Color.orange))    colorName = colorsArray[6];
+		else if (c.equals(Color.black))     colorName = colorsArray[7];
+		else if (c.equals(Color.white))     colorName = colorsArray[8];
+		else if (c.equals(Color.gray))      colorName = colorsArray[9];
+		else if (c.equals(Color.lightGray)) colorName = colorsArray[10];
+		else if (c.equals(Color.darkGray))  colorName = colorsArray[11];
+		else if (c.equals(Color.pink))      colorName = colorsArray[12];
+		else colorName = defaultName;
+		return useCapitalizedName ? capitalize(colorName)  : colorName.toLowerCase();
+	}
+
+	private static String capitalize(String str){
+		return str.substring(0, 1).toUpperCase() + str.substring(1);
 	}
 
 	/** For named colors, converts the name String to the corresponding color.
 	 *  Returns 'defaultColor' if the color has no name.
 	 *  Use 'decode' to also decode hex color names like "#ffff00" */
-	public static Color getColor(String name, Color defaultColor) {
+	public static Color getColor(String name, Color defaultColor)  {
 		if (name==null || name.length()<2)
 			return defaultColor;
 		name = name.toLowerCase(Locale.US);
 		Color c = defaultColor;
-		if (name.contains(colors[7])) c = Color.black;
-		else if (name.contains(colors[8]))  c = Color.white;
-		else if (name.contains(colors[0]))  c = Color.red;
-		else if (name.contains(colors[2]))  c = Color.blue;
-		else if (name.contains(colors[5]))  c = Color.yellow;
-		else if (name.contains(colors[1]))  c = Color.green;
-		else if (name.contains(colors[3]))  c = Color.magenta;
-		else if (name.contains(colors[4]))  c = Color.cyan;
-		else if (name.contains(colors[6]))  c = Color.orange;
-		else if (name.contains(colors[12])) c = Color.pink;
-		else if (name.contains(colors[9]) || name.contains("grey")) { //gray or grey
-			if (name.contains("light"))     c = Color.lightGray;
-			else if (name.contains("dark")) c = Color.darkGray;
-			else                            c = Color.gray;
+		Class colorClass = Color.class;
+		try {
+			Field field = colorClass.getDeclaredField(name);
+			return (Color) field.get(c);
+		}catch (Exception ex){
+			return c;
 		}
-		return c;
 	}
 
 	/** Converts a String with the color name or the hexadecimal representation
@@ -178,27 +172,6 @@ public class Colors implements PlugIn, ItemListener {
 
 	public static int getBlue(String hexColor) {
 		return decode(hexColor, Color.black).getBlue();
-	}
-
-	/** Converts a hex color (e.g., "ffff00") into "red", "green", "yellow", etc.
-	 *  Returns null if the hex color does not have a name.
-	 *  Unused in ImageJ, for compatibility only. */
-	public static String hexToColor(String hex) {
-		if (hex==null) return null;
-		Color color = decode(hex, null);
-		if (color==null) return null;
-		return getColorName(color, null, false);
-	}
-
-	/** Converts a hex color (e.g., "ffff00" or "#ffff00") into a color name
-	 *  "Red", "Green", "Yellow", etc.
-	 *  Returns null if the hex color does not have a name.
-	 *  Unused in ImageJ, for compatibility only. */
-	public static String hexToColor2(String hex) {
-		if (hex==null) return null;
-		Color color = decode(hex, null);
-		if (color==null) return null;
-		return getColorName(color, null, true);
 	}
 
 	/** Converts a Color into a lowercase string ("red", "green", "#aa55ff", etc.).
@@ -269,8 +242,12 @@ public class Colors implements PlugIn, ItemListener {
 			if (arg!=null && arg.length()>0 && (!Character.isLetter(arg.charAt(0))||arg.equals("None")))
 				names.add(arg);
 		}
-		for (String arg: colors2)
-			names.add(arg);
+		for (String arg: colorsArray)
+			names.add(capitalize(arg));
 		return (String[])names.toArray(new String[names.size()]);
+	}
+
+	public static String[] getColorsArray() {
+		return colorsArray;
 	}
 }
